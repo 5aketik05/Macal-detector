@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Мақал Детекторы — К. Азербаев</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#0b1020;color:#e8ecf7;min-height:100vh;padding:16px;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto}
+.header{text-align:center;margin-bottom:24px;padding-top:10px}
+h1{font-size:26px;background:linear-gradient(90deg,#4ade80,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:10px;font-weight:bold}
+.sub{color:#9aa4c7;font-size:14px;line-height:1.6}
+.school{color:#22d3ee;font-size:13px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.box{background:#141a2e;border:1px solid #263056;border-radius:16px;padding:18px;margin-bottom:22px}
+label{display:block;font-size:14px;color:#9aa4c7;margin-bottom:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input{flex:1;min-width:180px;background:#1b2340;border:1px solid #2c3766;color:#fff;padding:14px;border-radius:10px;font-size:15px;outline:none}
+input::placeholder{color:#7a85a8}
+input:focus{border-color:#22d3ee}
+button{background:linear-gradient(90deg,#4ade80,#22d3ee);color:#04121f;font-weight:bold;border:none;padding:14px 22px;border-radius:10px;font-size:15px;cursor:pointer}
+button:hover{opacity:.9}
+.samples-title{font-size:13px;color:#9aa4c7;margin-top:16px;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px}
+.samples{display:flex;flex-direction:column;gap:8px}
+.sample{background:#1b2340;border:1px solid #2c3766;border-left:3px solid #22d3ee;color:#e8ecf7;padding:12px 14px;border-radius:10px;font-size:14px;cursor:pointer;transition:.2s}
+.sample:hover{background:#1f2945;border-left-color:#4ade80;color:#fff}
+.card{background:#141a2e;border:1px solid #263056;border-radius:14px;padding:14px;margin-bottom:10px}
+.card.wrong{border-left:4px solid #f87171}
+.card.right{border-left:4px solid #22d3ee}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.name{font-weight:bold;font-size:14px}
+.tag{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:bold}
+.bad{background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.4)}
+.info{background:rgba(34,211,238,.15);color:#22d3ee;border:1px solid rgba(34,211,238,.4)}
+.good{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.4)}
+.ans{background:#1b2340;padding:10px 12px;border-radius:8px;font-size:14px}
+.note{font-size:12px;color:#9aa4c7;margin-top:8px;font-style:italic}
+.empty{text-align:center;color:#9aa4c7;padding:40px 20px;border:1px dashed #2c3766;border-radius:16px;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:22px}
+.stat{background:#141a2e;border:1px solid #263056;border-radius:14px;padding:18px;text-align:center}
+.stat b{display:block;font-size:26px;color:#22d3ee;margin-bottom:6px}
+.stat span{font-size:12px;color:#9aa4c7}
+footer{text-align:center;color:#9aa4c7;font-size:13px;padding:24px 10px;line-height:1.7;margin-top:20px;border-top:1px solid #1c2440}
+footer b{color:#e8ecf7}
+.tb{background:linear-gradient(135deg,#14261f,#0f1a30);border:2px solid #4ade80;border-radius:16px;padding:18px;margin-top:16px;text-align:center}
+.tb .l{font-size:12px;color:#4ade80;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;font-weight:bold}
+.tb .t{font-size:17px;font-weight:bold;color:#fff;margin-bottom:6px}
+.all-section{background:#141a2e;border:1px solid #263056;border-radius:16px;padding:18px;margin-top:24px}
+.all-section h2{font-size:16px;color:#22d3ee;margin-bottom:14px;text-transform:uppercase;letter-spacing:1px}
+.all-list{max-height:500px;overflow-y:auto;padding-right:6px}
+.all-item{padding:12px 14px;background:#1b2340;border-radius:10px;margin-bottom:8px;border-left:3px solid #3a4573;cursor:pointer;transition:.2s}
+.all-item:hover{border-left-color:#4ade80;background:#1f2945}
+.all-item .proverb{font-size:14px;font-weight:bold;color:#fff;margin-bottom:6px}
+.all-item .correct{font-size:13px;color:#4ade80}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="header">
+<div class="school">К. Азербаев атындағы орта мектеп</div>
+<h1>ЖИ қазақша ойлай ала ма?</h1>
+<div class="sub">Мақалды жаз — 3 ЖИ-дің қатесін және дұрыс жауабын салыстыр</div>
+</div>
+
+<div class="box">
+<label>Мақалды осында жазыңыз:</label>
+<div class="row">
+<input type="text" id="input" placeholder="Мысалы: Қызға қырық үйден тыйым">
+<button onclick="analyze()">Тексеру</button>
+</div>
+<div class="samples-title">Немесе мына мақалдарды таңдаңыз:</div>
+<div class="samples" id="samples"></div>
+</div>
+
+<div id="results"><div class="empty">Нәтижені көру үшін мақал жазып, «Тексеру» басыңыз</div></div>
+
+<div class="stats">
+<div class="stat"><b id="stat-total">0</b><span>Тексерілген мақал</span></div>
+<div class="stat"><b>100</b><span>Датасеттегі мақал</span></div>
+<div class="stat"><b>3</b><span>Салыстырылған ЖИ</span></div>
+<div class="stat"><b>100%</b><span>Адам бақылауы</span></div>
+</div>
+
+<div class="all-section">
+<h2>📚 Барлық мақалдар</h2>
+<div class="all-list" id="all-list"></div>
+</div>
+
+<footer>«Мен ЖИ қазақша білмейді деп шағымданбадым.<br>Мен оған датасет жасап бердім.»<br><br><b>© К. Азербаев атындағы орта мектеп</b></footer>
+</div>
+
+<script>
+var DATASET = {
+"қызға қырық үйден тыйым":{c:"Запрет из 40 домов",g:"Ban from forty houses",y:"Запрет для девушки из сорока домов",k:"Девушку воспитывает весь аул",n:"Қыз — бүкіл қоғамның тәрбиесінде."},
+"жеті рет өлшеп бір рет кес":{c:"Measure seven times, cut once",g:"Measure seven times and cut once",y:"Семь раз отмерь, один раз отрежь",k:"Ойланбай іс қылма, асықпа",n:"Әрекеттен бұрын жете ойлан."},
+"білім таусылмас қазына":{c:"Knowledge is an inexhaustible treasure",g:"Knowledge is an endless treasure",y:"Знание — неиссякаемое сокровище",k:"Білім — адамның ең бай байлығы",n:"Білімнің құны шексіз."},
+"бірлік болмай тірлік болмайды":{c:"Without unity, there is no life",g:"No unity — no living",y:"Без единства не будет жизни",k:"Бірлік болмаса, ел дамымайды",n:"Ынтымақ — өркендеу негізі."},
+"ағаш түбімен адам ағасымен":{c:"A tree with its root",g:"Tree by its root",y:"Дерево корнем",k:"Адам ағайын-туысымен мықты",n:"Туыстық — тірек."},
+"тіл қоғам айнасы":{c:"Language is a mirror of society",g:"Language is mirror of society",y:"Язык — зеркало общества",k:"Тіл — халықтың рухани келбеті",n:"Тілде ұлт бейнеленеді."},
+"отан оттан да ыстық":{c:"Motherland is hotter than fire",g:"Homeland is hotter than fire",y:"Родина горячее огня",k:"Отан — жаннан қымбат",n:"Отанды сүю — қасиет."},
+"досың көп болса жауың аз болады":{c:"If you have many friends",g:"Many friends — few enemies",y:"Если друзей много",k:"Достық — қауіпсіздік кепілі",n:"Достық қорғайды."},
+"ұят білімнен де күшті":{c:"Shame is stronger than knowledge",g:"Shame is stronger",y:"Стыд сильнее знания",k:"Ұят — адамгершіліктің негізі",n:"Ар-ұят — тәрбие өзегі."},
+"еңбек етсең ерінбей тояды қарның тіленбей":{c:"If you work without laziness",g:"Work hard and be full",y:"Будешь трудиться — будешь сыт",k:"Еңбекқор адам мұқтаж болмайды",n:"Еңбек — береке."},
+"оқусыз білім жоқ білімсіз күнің жоқ":{c:"Without study no knowledge",g:"No study no knowledge",y:"Без учебы нет знаний",k:"Білім — өмірдің жарығы",n:"Оқу — өмір негізі."},
+"ақыл тозбайтын тон білім таусылмайтын кен":{c:"Wisdom is a coat that does not wear out",g:"Mind is unwearable coat",y:"Ум не изнашивается",k:"Ақыл мен білім — мәңгілік байлық",n:"Ақыл мен білім таусылмайды."},
+"балапан ұяда не көрсе ұшқанда соны іледі":{c:"What a chick sees in the nest",g:"What nestling sees in nest",y:"Что птенец видит в гнезде",k:"Бала — үлкендерден үлгі алады",n:"Бала тәрбиені алады."},
+"туған жердей жер болмас туған елдей ел болмас":{c:"There is no land like native land",g:"No land like motherland",y:"Нет земли лучше родной",k:"Туған жер — жанның жылуы",n:"Отан — әр адамға ыстық."},
+"тұзды төкпе қызды сөкпе":{c:"Do not spill salt, do not scold a girl",g:"Don't spill salt",y:"Не рассыпай соль",k:"Қыз — елдің көркі",n:"Қызды қадірле."},
+"білімді мыңды жығады білекті бірді жығады":{c:"The learned defeats thousands",g:"Knowledge defeats thousands",y:"Знающий победит тысячи",k:"Білім — күштен де артық",n:"Білім күштен басым."},
+"досыңды қиналғанда бір сына қуанғанда бір сына":{c:"Test your friend once",g:"Test friend in sorrow",y:"Проверь друга в беде",k:"Дос — қиындықта сыналады",n:"Шынайы достық қиындықта білінеді."},
+"денсаулық зор байлық":{c:"Health is great wealth",g:"Health is big wealth",y:"Здоровье — богатство",k:"Денсаулық — баға жетпес байлық",n:"Денсаулық — ең қымбат."},
+"аштың мұңын тоқ түсінбес":{c:"Well-fed won't understand hungry",g:"Full man doesn't understand",y:"Сытый голодного не поймет",k:"Бақытты адам бақытсызды түсінбейді",n:"Әркім өз халін біледі."},
+"екі кеменің басын ұстаған суға кетер":{c:"Who holds two boats will drown",g:"Holding two boats drowns",y:"Кто держит две лодки, утонет",k:"Екі істі қатар істеу — қате",n:"Бір іске шындап кіріс."},
+"жақсыдан шарапат жаманнан кесапат":{c:"From good comes blessing",g:"Good brings good",y:"От хорошего — благо",k:"Жақсымен дос бол, жаманнан қаш",n:"Ортаңды дұрыс таңда."},
+"еңбектің көзін тапқан байлықтың өзін табады":{c:"Who finds source of labor",g:"Find work — find wealth",y:"Кто найдет источник труда",k:"Еңбек — байлықтың көзі",n:"Еңбекпен байлық келеді."},
+"ел іші алтын бесік":{c:"People's land is golden cradle",g:"Land of people is golden cradle",y:"Родная земля — золотая колыбель",k:"Өз елің — жанның жылуы",n:"Отан — әр адамға ыстық."},
+"кеңесіп пішкен тон келте болмас":{c:"Coat sewn with advice",g:"Coat sewn with counsel",y:"Сшитый с советом кафтан",k:"Ақылдасып істеген іс — дұрыс",n:"Кеңес — істің кепілі."},
+"жалғыздың үні шықпас жаяудың шаңы шықпас":{c:"Lonely man's voice not heard",g:"Lonely has no voice",y:"Одинокий не слышен",k:"Бірлік болмаса, күш болмайды",n:"Жалғыз адам әлсіз."},
+"асы жоқ үйді ит те сүймейді":{c:"Dog doesn't like house without food",g:"House without food — dog avoids",y:"Дом без еды и собака не любит",k:"Берекесіз үй — қуыс",n:"Береке — үйдің байлығы."},
+"ат айналып қазығын табар ер айналып елін табар":{c:"Horse finds post, man finds homeland",g:"Horse returns to post",y:"Конь вернется к коновязи",k:"Адам туған жеріне тартады",n:"Отан — жанның тартылысы."},
+"атаңның баласы болма адамның баласы бол":{c:"Don't be son of father, be son of man",g:"Be son of man",y:"Будь сыном народа",k:"Адам болу — ең биік мақсат",n:"Адамгершілік — басты қасиет."},
+"ата балаға сыншы":{c:"Father is critic to child",g:"Father is judge for child",y:"Отец — судья ребенку",k:"Әке — баланың тәрбиешісі",n:"Әке — басты тәрбиеші."},
+"ағайын тату болса ат көп абысын тату болса ас көп":{c:"If relatives united — many horses",g:"United relatives — many horses",y:"Если родня дружна — много коней",k:"Ынтымақты отбасы — бай отбасы",n:"Татулық — байлық."},
+"ер бір рет өледі қорқақ мың рет өледі":{c:"Hero dies once, coward dies thousand",g:"Brave dies once, coward thousand",y:"Герой умирает раз, трус — тысячу",k:"Намыс — өмірден қымбат",n:"Ерлік — мәңгілік."},
+"қоянды қамыс өлтіреді ерді намыс өлтіреді":{c:"Reed kills rabbit, honor kills hero",g:"Rabbit by reed, hero by honor",y:"Зайца губит камыш, джигита — честь",k:"Намыс — ер адамның жаны",n:"Намыссыз өмір — өлім."},
+"батыр туса ел ырысы":{c:"If hero born — wealth of people",g:"Hero born — people's wealth",y:"Если родится батыр — счастье народа",k:"Батыр — елдің қорғаны",n:"Батыр — халықтың байлығы."},
+"сөз қанжардан да өткір":{c:"Word is sharper than dagger",g:"Word sharper than dagger",y:"Слово острее кинжала",k:"Сөз — қарудан да қауіпті",n:"Сөзді абайлап айт."},
+"аз сөз алтын":{c:"Few words are gold",g:"Few words — gold",y:"Мало слов — золото",k:"Аз сөйле, көп тыңда",n:"Аз сөйлеу — өнер."},
+"ақыл жастан шығады":{c:"Wisdom comes from youth",g:"Wisdom comes with age",y:"Ум выходит из молодости",k:"Ақыл — тәжірибеден келеді",n:"Ақыл жаспен келеді."},
+"ағаш көркі жапырақ адам көркі шүберек":{c:"Beauty of tree is leaves",g:"Tree beauty — leaves",y:"Красота дерева — листья",k:"Адам киімімен емес, ісімен әдемі",n:"Адам ісімен бағаланады."},
+"ағаш тамырымен адам қарым-қатынасымен":{c:"Tree with roots, man with relations",g:"Tree by roots, man by relations",y:"Дерево корнями",k:"Адам — қарым-қатынаспен мықты",n:"Байланыс маңызды."},
+"адымдап бассаң жетерсің асықпай істесең бітеді":{c:"Step by step you arrive",g:"Step by step arrive",y:"Шаг за шагом дойдешь",k:"Асықпаған — алдына қарар",n:"Асықпай істеу — жеңіс."},
+"аққу көліне қонса қаз болады":{c:"Swan on lake becomes goose",g:"Swan becomes goose",y:"Лебедь становится гусем",k:"Адам өз ортасына бейімделеді",n:"Ортаң — өзің."},
+"ақыл азық білім қазық":{c:"Wisdom is food, knowledge is peg",g:"Mind is food, knowledge is stake",y:"Ум — пища, знание — кол",k:"Ақыл — азық, білім — тірек",n:"Ақыл мен білім — тірек."},
+"алдыңа қарай жүрсең адаспайсың":{c:"Walk looking forward — won't get lost",g:"Walk forward won't get lost",y:"Идешь вперед — не заблудишься",k:"Алдыңа нақты мақсат қой",n:"Мақсатсыз адам адасады."},
+"алтын көрсе періште жолдан таяды":{c:"Even angel loses way seeing gold",g:"Angel loses way seeing gold",y:"И ангел с пути сбивается",k:"Байлық адамды азғырады",n:"Байлық — сынақ."},
+"алтынның қадірін зергер біледі":{c:"Jeweler knows value of gold",g:"Jeweler knows gold's value",y:"Цену золота знает ювелир",k:"Әркім өз ісінің маманы",n:"Кәсіби маман бағалайды."},
+"аңдамай сөйлеген ауырмай өледі":{c:"Speaks without thinking dies without pain",g:"Speak without thought",y:"Кто говорит не думая",k:"Ойланбай сөйлеу — қауіпті",n:"Сөзді ойлап айт."},
+"асыл тас жерде қалмас":{c:"Precious stone won't stay in ground",g:"Precious stone won't stay",y:"Камень в земле не останется",k:"Асыл адам елге танылады",n:"Құнды адам бағаланады."},
+"ашу дос жоқ ақыл дос көп":{c:"Anger has no friend, wisdom has many",g:"Anger no friends, wisdom many",y:"У гнева нет друга",k:"Ашу — жау, ақыл — дос",n:"Ақылмен іс қыл."},
+"ащы дәрі ауруға ем":{c:"Bitter medicine is cure",g:"Bitter medicine heals",y:"Горькое лекарство — лекарство",k:"Ащы сөз — ем",n:"Шынайы сөз — пайдалы."},
+"байлық мұра емес еңбек мұра":{c:"Wealth not heritage, labor is",g:"Wealth not heritage",y:"Богатство не наследство",k:"Байлық — еңбекпен келеді",n:"Еңбек — мұра."},
+"балалы үй базар баласыз үй қу мазар":{c:"House with children — bazaar",g:"With children — bazaar",y:"Дом с детьми — базар",k:"Бала — үйдің берекесі",n:"Бала — қуаныш."},
+"бас кеспек болса да тіл кеспек жоқ":{c:"Head may be cut, tongue should not",g:"Head cut, tongue not",y:"Голову можно отрубить, язык — нет",k:"Сөз — адамның жаны",n:"Сөз — қасиетті."},
+"батыл басқа бақ қонар":{c:"Fortune comes to the bold",g:"Fortune favors the brave",y:"Смелому — счастье",k:"Батыл адамға бақ қонады",n:"Батылдық — жеңіс кепілі."},
+"бейнет көрмей зейнет жоқ":{c:"Without hardship no reward",g:"No pain — no gain",y:"Без труда нет награды",k:"Еңбексіз — бақыт жоқ",n:"Бақытқа еңбекпен жетеді."},
+"білім инемен құдық қазғандай":{c:"Knowledge is like digging well with needle",g:"Knowledge — well with needle",y:"Знание — колодец иглой",k:"Білім — ұзақ еңбекпен",n:"Білім — табандылық жемісі."},
+"бір сөзде мың мағына бар":{c:"One word has thousand meanings",g:"One word — thousand meanings",y:"В одном слове — тысяча значений",k:"Сөз — терең мағыналы",n:"Сөзді түсініп айт."},
+"дәулет құсы қонақ":{c:"Bird of wealth is a guest",g:"Bird of wealth — guest",y:"Птица богатства — гость",k:"Байлық — уақытша",n:"Байлыққа сенбе."},
+"дүниедегі ең үлкен байлық денсаулық":{c:"Greatest wealth is health",g:"Greatest wealth — health",y:"Самое большое богатство — здоровье",k:"Денсаулық — баға жетпес байлық",n:"Денсаулықты сақта."},
+"еңбек еткен жеңіске жеткен":{c:"Who works achieves victory",g:"Work brings victory",y:"Кто трудится — побеждает",k:"Еңбек — жеңіске жеткізеді",n:"Еңбек — жеңіс кілті."},
+"еріншекке ертең де ауыр":{c:"For lazy even tomorrow hard",g:"For lazy tomorrow hard",y:"Ленивому и завтра тяжело",k:"Жалқауға бәрі қиын",n:"Жалқаулық — жаман."},
+"жақсы сөз жарым ырыс":{c:"Good word is half prosperity",g:"Good word — half wealth",y:"Доброе слово — половина счастья",k:"Жақсы сөз — бақыт әкеледі",n:"Жақсы сөз — жылы."},
+"жаман дос жаудан да жаман":{c:"Bad friend worse than enemy",g:"Bad friend worse than enemy",y:"Плохой друг хуже врага",k:"Жаман дос — жау",n:"Досты дұрыс таңда."},
+"жау жоқта батыр көп":{c:"No enemy — many heroes",g:"No enemy — many heroes",y:"Нет врага — много героев",k:"Нағыз батыр — сынақта",n:"Ерлік — қиындықта."},
+"жетеу өлшеп біреу кес":{c:"Measure seven, cut once",g:"Measure seven, cut once",y:"Семеро отмерь, один режь",k:"Кеңесіп барып іс қыл",n:"Ақылдасу — дұрыс."},
+"жұмыла көтерген жүк жеңіл":{c:"Load lifted together is light",g:"Load lifted together is light",y:"Вместе поднятая ноша легка",k:"Бірлесіп істеген — жеңіл",n:"Бірлік — күш."},
+"ине шаншар жер жоқ":{c:"No place to stick needle",g:"No place to stick needle",y:"Негде иголку воткнуть",k:"Тым тығыз, тар жер",n:"Тарлық — қиындық."},
+"ит үреді керуен көшеді":{c:"Dogs bark, caravan moves",g:"Dogs bark, caravan passes",y:"Собаки лают, караван идет",k:"Сын айтқанға қарамай істе",n:"Жолыңды жалғастыр."},
+"көп қорқытады терең батырады":{c:"Many frighten, deep drowns",g:"Many scare, deep drowns",y:"Многие пугают, глубокое топит",k:"Көптің пікірі әртүрлі",n:"Өз ойыңмен жүр."},
+"көп сөз көмір":{c:"Many words are coal",g:"Many words — coal",y:"Много слов — уголь",k:"Көп сөйлеу — зиян",n:"Аз сөйле — көп тыңда."},
+"күш бірлікте":{c:"Strength is in unity",g:"Strength in unity",y:"Сила в единстве",k:"Бірлік — күш көзі",n:"Бірлік — жеңіс."},
+"қанағат қарын тойғызар қанағатсыз не бойғызар":{c:"Contentment fills the stomach",g:"Contentment fills",y:"Довольство насыщает",k:"Қанағат — бақыт",n:"Азға қанағат қыл."},
+"қолың бір болса да жүрегің мың болсын":{c:"One hand, thousand hearts",g:"One hand, thousand hearts",y:"Рук мало — сердце большое",k:"Жүрек кең болсын",n:"Жомарттық — қасиет."},
+"қызыл тіл қылыштан өткір":{c:"Red tongue sharper than sword",g:"Tongue sharper than sword",y:"Язык острее меча",k:"Сөз — қарудан күшті",n:"Сөзді абайлап айт."},
+"мал баққан мал табады":{c:"Who herders gains cattle",g:"Who herders gains",y:"Кто скот пасет — богат",k:"Еңбек — байлық әкеледі",n:"Еңбек — байлық көзі."},
+"мейірімсіз бала ата-анаға тас":{c:"Heartless child is stone to parents",g:"Heartless child — stone",y:"Безжалостный ребенок — камень",k:"Бала — ата-ананың жүрегі",n:"Ата-ананы сыйла."},
+"мың қайғы бір қуанышқа айналады":{c:"Thousand sorrows become one joy",g:"Thousand sorrows — one joy",y:"Тысяча печалей — в радость",k:"Бақыт — қиындықтан кейін",n:"Қуаныш — қиындықтан кейін."},
+"наданмен дос болма надан сені аздырар":{c:"Don't befriend ignorant, he ruins you",g:"Don't befriend ignorant",y:"Не дружи с невеждой",k:"Надан — жаман жолдас",n:"Жақсы орта — жақсы өмір."},
+"оқу инемен құдық қазғандай":{c:"Learning is like digging well with needle",g:"Learning
