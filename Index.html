@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мақал Детекторы — №15 Иле ауданы</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:linear-gradient(180deg,#0b1020 0%,#131a35 100%);color:#e8ecf7;min-height:100vh;padding:16px;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto}
+
+.header{background:linear-gradient(135deg,#1e2a55,#0f1730);border:1px solid #2c3766;border-radius:18px;padding:22px 18px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden}
+.header::before{content:"";position:absolute;top:-50px;right:-50px;width:150px;height:150px;background:radial-gradient(circle,#4ade80,transparent 70%);opacity:.25}
+.header::after{content:"";position:absolute;bottom:-50px;left:-50px;width:150px;height:150px;background:radial-gradient(circle,#22d3ee,transparent 70%);opacity:.25}
+.school{font-size:13px;color:#22d3ee;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;position:relative;z-index:1}
+h1{font-size:24px;background:linear-gradient(90deg,#4ade80,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px;position:relative;z-index:1}
+.sub{color:#9aa4c7;font-size:13px;position:relative;z-index:1}
+.badge{display:inline-block;background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.35);padding:4px 12px;border-radius:20px;font-size:11px;margin-top:10px;position:relative;z-index:1}
+
+.box{background:#141a2e;border:1px solid #263056;border-radius:16px;padding:18px;margin-bottom:18px}
+label{display:block;font-size:13px;color:#9aa4c7;margin-bottom:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input{flex:1;min-width:200px;background:#1b2340;border:1px solid #2c3766;color:#fff;padding:13px;border-radius:10px;font-size:16px;outline:none}
+input:focus{border-color:#22d3ee;box-shadow:0 0 0 3px rgba(34,211,238,.15)}
+button{background:linear-gradient(90deg,#4ade80,#22d3ee);color:#04121f;font-weight:bold;border:none;padding:13px 22px;border-radius:10px;font-size:16px;cursor:pointer}
+button:hover{opacity:.9}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.chip{background:#1b2340;border:1px solid #2c3766;color:#9aa4c7;padding:6px 12px;border-radius:20px;font-size:12px;cursor:pointer}
+.chip:hover{color:#fff;border-color:#22d3ee}
+
+.section-title{font-size:14px;color:#9aa4c7;margin:20px 0 10px;text-transform:uppercase;letter-spacing:1px;font-weight:bold}
+.ai-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.card{background:#141a2e;border:1px solid #263056;border-radius:14px;padding:14px}
+.card.wrong{border-left:4px solid #f87171}
+.card.correct{border-left:4px solid #4ade80;background:linear-gradient(135deg,#14261f,#141a2e)}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.name{font-weight:bold;font-size:14px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:bold}
+.bad{background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.4)}
+.good{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.4)}
+.ans{background:#1b2340;padding:10px 12px;border-radius:8px;font-size:14px}
+.correct .ans{background:rgba(74,222,128,.08);font-size:15px}
+.note{font-size:12px;color:#9aa4c7;margin-top:8px;font-style:italic}
+
+.empty{text-align:center;color:#9aa4c7;padding:30px;border:1px dashed #2c3766;border-radius:14px;font-size:14px}
+
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:20px}
+.stat{background:#141a2e;border:1px solid #263056;border-radius:14px;padding:14px;text-align:center}
+.stat b{display:block;font-size:22px;color:#22d3ee}
+.stat span{font-size:11px;color:#9aa4c7}
+
+footer{text-align:center;color:#9aa4c7;font-size:12px;padding:20px 0;border-top:1px solid #1c2440;margin-top:24px;line-height:1.6}
+footer b{color:#e8ecf7}
+
+/* Блок со всеми пословицами */
+.all-section{margin-top:24px;background:#141a2e;border:1px solid #263056;border-radius:16px;padding:18px}
+.all-section h2{font-size:16px;color:#22d3ee;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.all-list{max-height:420px;overflow-y:auto;padding-right:6px}
+.all-item{padding:12px 14px;background:#1b2340;border-radius:10px;margin-bottom:8px;border-left:3px solid #3a4573;cursor:pointer;transition:.2s}
+.all-item:hover{border-left-color:#4ade80;background:#1f2945}
+.all-item .proverb{font-size:14px;font-weight:bold;color:#fff;margin-bottom:6px}
+.all-item .correct{font-size:13px;color:#4ade80}
+.all-item .wrongs{font-size:11px;color:#9aa4c7;margin-top:6px;line-height:1.4}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="school">№15 Иле ауданы • Алматы облысы</div>
+    <h1>ЖИ қазақша ойлай ала ма?</h1>
+    <p class="sub">К. Азербаев атындағы орта мектеп</p>
+    <div class="badge">🎯 МАҚАЛ ДЕТЕКТОРЫ</div>
+  </div>
+
+  <div class="box">
+    <label>Мақалды осында жазыңыз:</label>
+    <div class="row">
+      <input type="text" id="input" placeholder="Мысалы: Қызға қырық үйден тыйым">
+      <button onclick="analyze()">Тексеру</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="results">
+    <div class="empty">Нәтижені көру үшін мақал жазып, «Тексеру» басыңыз</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="stat-total">0</b><span>Тексерілген мақал</span></div>
+    <div class="stat"><b id="stat-db">35</b><span>Датасеттегі мақал</span></div>
+    <div class="stat"><b>3</b><span>Салыстырылған ЖИ</span></div>
+    <div class="stat"><b>100%</b><span>Адам бақылауы</span></div>
+  </div>
+
+  <div class="all-section">
+    <h2>📚 Барлық мақалдар (датасет)</h2>
+    <div class="all-list" id="all-list"></div>
+  </div>
+
+  <footer>
+    «Мен ЖИ қазақша білмейді деп шағымданбадым.<br>
+    Мен оған датасет жасап бердім.»<br><br>
+    <b>© №15 Иле ауданы • К. Азербаев атындағы мектеп</b>
+  </footer>
+
+</div>
+
+<script>
+var DATASET = {
+  "қызға қырық үйден тыйым": {
+    chatgpt: "Запрет из 40 домов",
+    gemini: "Ban from forty houses",
+    yandex: "Запрет для девушки из сорока домов",
+    correct: "Девушку воспитывает весь аул",
+    note: "Мағынасы: қыз — бүкіл қоғамның тәрбиесінде."
+  },
+  "жеті рет өлшеп бір рет кес": {
+    chatgpt: "Measure seven times, cut once",
+    gemini: "Measure seven times and cut once",
+    yandex: "Семь раз отмерь, один раз отрежь",
+    correct: "Ойланбай іс қылма, асықпа",
+    note: "Мағынасы: әрекеттен бұрын жете ойлан."
+  },
+  "білім таусылмас қазына": {
+    chatgpt: "Knowledge is an inexhaustible treasure",
+    gemini: "Knowledge is an endless treasure",
+    yandex: "Знание — неиссякаемое сокровище",
+    correct: "Білім — адамның ең бай байлығы",
+    note: "Мағынасы: білімнің құны шексіз."
+  },
+  "бірлік болмай тірлік болмайды": {
+    chatgpt: "Without unity, there is no life",
+    gemini: "No unity — no living",
+    yandex: "Без единства не будет жизни",
+    correct: "Бірлік болмаса, ел дамымайды",
+    note: "Мағынасы: ынтымақ — өркендеу негізі."
+  },
+  "ағаш түбімен адам ағасымен": {
+    chatgpt: "A tree with its root, a man with his brother",
+    gemini: "Tree by its root, man by his elder brother",
+    yandex: "Дерево корнем, человек старшим братом",
+    correct: "Адам ағайын-туысымен мықты",
+    note: "Мағынасы: туыстық — тірек."
+  },
+  "тіл қоғам айнасы": {
+    chatgpt: "Language is a mirror of society",
+    gemini: "Language is the mirror of society",
+    yandex: "Язык — зеркало общества",
+    correct: "Тіл — халықтың рухани келбеті",
+    note: "Мағынасы: тілде ұлт бейнеленеді."
+  },
+  "отан оттан да ыстық": {
+    chatgpt: "Motherland is hotter than fire",
+    gemini: "Homeland is hotter than fire",
+    yandex: "Родина горячее огня",
+    correct: "Отан — жаннан қымбат",
+    note: "Мағынасы: Отанды сүю — қасиет."
+  },
+  "досың көп болса жауың аз болады": {
+    chatgpt: "If you have many friends, you will have few enemies",
+    gemini: "Many friends — few enemies",
+    yandex: "Если друзей много, врагов мало",
+    correct: "Достық — қауіпсіздік кепілі",
+    note: "Мағынасы: достық қорғайды."
+  },
+  "ұят білімнен де күшті": {
+    chatgpt: "Shame is stronger than knowledge",
+    gemini: "Shame is stronger than knowledge",
+    yandex: "Стыд сильнее знания",
+    correct: "Ұят — адамгершіліктің негізі",
+    note: "Мағынасы: ар-ұят — тәрбие өзегі."
+  },
+  "еңбек етсең ерінбей тояды қарның тіленбей": {
+    chatgpt: "If you work without laziness, your stomach will be full without begging",
+    gemini: "Work hard and you won't have to beg to be full",
+    yandex: "Будешь трудиться не ленясь — будешь сыт, не прося",
+    correct: "Еңбекқор адам ешқашан мұқтаж болмайды",
+    note: "Мағынасы: еңбек — береке."
+  },
+  "ата асқар тау ана бауырындағы бұлақ бала жағасындағы құрақ": {
+    chatgpt: "Father is a high mountain, mother is a spring at its foot, child is a reed on the shore",
+    gemini: "Father — a mountain, mother — a spring, child — a reed",
+    yandex: "Отец — гора, мать — родник, ребенок — тростник",
+    correct: "Отбасы — тірек, ата-ана — қорған",
+    note: "Мағынасы: әке — биік, ана — жылы, бала — өмір."
+  },
+  "оқусыз білім жоқ білімсіз күнің жоқ": {
+    chatgpt: "Without study there is no knowledge, without knowledge there is no day",
+    gemini: "No study — no knowledge, no knowledge — no life",
+    yandex: "Без учебы нет знаний, без знаний нет дня",
+    correct: "Білім — өмірдің жарығы",
+    note: "Мағынасы: оқу — өмір негізі."
+  },
+  "ақыл тозбайтын тон білім таусылмайтын кен": {
+    chatgpt: "Wisdom is a coat that does not wear out, knowledge is an inexhaustible mine",
+    gemini: "Mind is an unwearable coat, knowledge is an inexhaustible mine",
+    yandex: "Ум — не изнашивается, знание — неисчерпаемо",
+    correct: "Ақыл мен білім — мәңгілік байлық",
+    note: "Мағынасы: ақыл мен білім ешқашан таусылмайды."
+  },
+  "әдепті бала арлы бала әдепсіз бала сорлы бала": {
+    chatgpt: "A polite child is an honest child, an impolite child is a miserable child",
+    gemini: "Polite child — honorable, impolite — unhappy",
+    yandex: "Воспитанный ребенок — честный, невоспитанный — несчастный",
+    correct: "Тәрбиелі бала — елдің тірегі",
+    note: "Мағынасы: әдеп — бақыттың кілті."
+  },
+  "өнерлі істе жеміс бар өрелі істе жеңіс бар": {
+    chatgpt: "In skillful work there is fruit, in prudent work there is victory",
+    gemini: "Skillful work brings fruit, wise work brings victory",
+    yandex: "В умелом деле — плод, в разумном — победа",
+    correct: "Өнер мен өре — жеңіске жеткізеді",
+    note: "Мағынасы: өнерлі адам жеңіске жетеді."
+  },
+  "балапан ұяда не көрсе ұшқанда соны іледі": {
+    chatgpt: "What a chick sees in the nest, it will follow when it flies",
+    gemini: "What a nestling sees in the nest, it does when it flies",
+    yandex: "Что птенец видит в гнезде, то и делает в полете",
+    correct: "Бала — үлкендерден үлгі алады",
+    note: "Мағынасы: бала отбасындағы тәрбиені алады."
+  },
+  "туған жердей жер болмас туған елдей ел болмас": {
+    chatgpt: "There is no land like native land, no people like native people",
+    gemini: "No land like motherland, no people like your own",
+    yandex: "Нет земли лучше родной, нет народа лучше своего",
+    correct: "Туған жер — жанның жылуы",
+    note: "Мағынасы: Отан — әр адамға ыстық."
+  },
+  "өз еліңде сұлтан болғанша өз еліңде ұлтан бол": {
+    chatgpt: "Better to be a sultan in your country than a sole in another",
+    gemini: "Be a sole in your land than sultan in another",
+    yandex: "Лучше быть стелькой на родине, чем султаном на чужбине",
+    correct: "Өз елің — алтын бесік",
+    note: "Мағынасы: өз еліңде бақытты бол."
+  },
+  "тұзды төкпе қызды сөкпе": {
+    chatgpt: "Do not spill salt, do not scold a girl",
+    gemini: "Don't spill salt, don't scold daughter",
+    yandex: "Не рассыпай соль, не ругай девушку",
+    correct: "Қыз — елдің көркі",
+    note: "Мағынасы: қызды қадірле."
+  },
+  "білімді мыңды жығады білекті бірді жығады": {
+    chatgpt: "The learned defeats thousands, the strong defeats one",
+    gemini: "Knowledge defeats thousands, strength defeats one",
+    yandex: "Знающий победит тысячи, сильный — одного",
+    correct: "Білім — күштен де артық",
+    note: "Мағынасы: білім күштен басым."
+  },
+  "досыңды қиналғанда бір сына қуанғанда бір сына": {
+    chatgpt: "Test your friend once in trouble, once in joy",
+    gemini: "Test friend in sorrow and in joy",
+    yandex: "Проверь друга в беде и в радости",
+    correct: "Дос — қиындықта сыналады",
+    note: "Мағынасы: шынайы достық қиындықта білінеді."
+  },
+  "денсаулық зор байлық": {
+    chatgpt: "Health is great wealth",
+    gemini: "Health is big wealth",
+    yandex: "Здоровье — большое богатство",
+    correct: "Денсаулық — баға жетпес байлық",
+    note: "Мағынасы: денсаулық — ең қымбат."
+  },
+  "өмір бойы үйрен": {
+    chatgpt: "Learn throughout life",
+    gemini: "Study your whole life",
+    yandex: "Учись всю жизнь",
+    correct: "Білім — өмір бойы",
+    note: "Мағынасы: оқу — мәңгілік процесс."
+  },
+  "аштың мұңын тоқ түсінбес": {
+    chatgpt: "The well-fed will not understand the hungry",
+    gemini: "Full man doesn't understand hungry",
+    yandex: "Сытый голодного не поймет",
+    correct: "Бақытты адам бақытсызды түсінбейді",
+    note: "Мағынасы: әркім өз халін біледі."
+  },
+  "екі кеменің басын ұстаған суға кетер": {
+    chatgpt: "Who holds two boats will drown",
+    gemini: "Holding two boats leads to drowning",
+    yandex: "Кто держит две лодки, утонет",
+    correct: "Екі істі қатар істеу — қате",
+    note: "Мағынасы: бір іске шындап кіріс."
+  },
+  "жақсыдан шарапат жаманнан кесапат": {
+    chatgpt: "From good comes blessing, from bad comes curse",
+    gemini: "Good brings good, bad brings harm",
+    yandex: "От хорошего — благо, от плохого — беда",
+    correct: "Жақсымен дос бол, жаманнан қаш",
+    note: "Мағынасы: ортаңды дұрыс таңда."
+  },
+  "еңбектің көзін тапқан байлықтың өзін табады": {
+    chatgpt: "Who finds the source of labor finds wealth itself",
+    gemini: "Find the source of work — find wealth",
+    yandex: "Кто найдет источник труда, найдет богатство",
+    correct: "Еңбек — байлықтың көзі",
+    note: "Мағынасы: еңбекпен байлық келеді."
+  },
+  "ел іші алтын бесік": {
+    chatgpt: "The people's land is a golden cradle",
+    gemini: "Land of people is golden cradle",
+    yandex: "Родная земля — золотая колыбель",
+    correct: "Өз елің — жанның жылуы",
+    note: "Мағынасы: Отан — әр адамға ыстық."
+  },
+  "құлан құдыққа түссе құлағында құрбақа ойнар": {
+    chatgpt: "If a kulan falls into a well, a frog plays on its ear",
+    gemini: "When kulan falls in well, frog plays on ear",
+    yandex: "Если кулан упадет в колодец, лягушка играет на ухе",
+    correct: "Үлкен құласа, кіші күледі",
+    note: "Мағынасы: әлсіздер күштінің құлауын күтеді."
+  },
+  "кеңесіп пішкен тон келте болмас": {
+    chatgpt: "A coat sewn with advice will not be short",
+    gemini: "Coat sewn with counsel won't be short",
+    yandex: "Сшитый с советом кафтан не будет коротким",
+    correct: "Ақылдасып істеген іс — дұрыс",
+    note: "Мағынасы: кеңес — істің кепілі."
+  },
+  "жалғыздың үні шықпас жаяудың шаңы шықпас": {
+    chatgpt: "A lonely man's voice is not heard, a pedestrian's dust is not seen",
+    gemini: "Lonely has no voice, walker has no dust",
+    yandex: "Одинокий не слышен, пеший не пылит",
+    correct: "Бірлік болмаса, күш болмайды",
+    note: "Мағынасы: жалғыз адам әлсіз."
+  },
+  "асы жоқ үйді ит те сүймейді": {
+    chatgpt: "Even a dog does not like a house without food",
+    gemini: "A house without food, even dog avoids",
+    yandex: "Дом без еды и собака не любит",
+    correct: "Берекесіз үй — қуыс",
+    note: "Мағынасы: береке — үйдің байлығы."
+  },
+  "ат айналып қазығын табар ер айналып елін табар": {
+    chatgpt: "A horse circles and finds its post, a man circles and finds his land",
+    gemini: "Horse returns to post, man returns to homeland",
+    yandex: "Конь вернется к коновязи, джигит — на родину",
+    correct: "Адам туған жеріне тартады",
+    note: "Мағынасы: Отан — жанның тартылысы."
+  },
+  "атадан ұл қалса өзі қалғаны қыз қалса ізі қалғаны": {
+    chatgpt: "If a son remains from father, he remains himself, if a daughter remains, her trace remains",
+    gemini: "Son remains father himself, daughter remains trace",
+    yandex: "Сын останется сам, дочь — след",
+    correct: "Ұл — ұрпақ, қыз — із",
+    note: "Мағынасы: бала — ата-ананың жалғасы."
+  },
+  "атаңның баласы болма адамның баласы бол": {
+    chatgpt: "Do not be a son of your father, be a son of humanity",
+    gemini: "Don't be son of father, be son of man",
+    yandex: "Не будь сыном отца, будь сыном народа",
+    correct: "Адам болу — ең биік мақсат",
+    note: "Мағынасы: адамгершілік — басты қасиет."
+  },
+  "аты аталмаған жігіттен аты аталған төбе артық": {
+    chatgpt: "Better a named hill than an unnamed young man",
+    gemini: "Named hill better than unnamed man",
+    yandex: "Лучше названный холм, чем безымянный джигит",
+    correct: "Атың шықпаса, ісің шықпайды",
+    note: "Мағынасы: атақ — еңбекпен келеді."
+  },
+  "мың тасқанға да бір тосқын": {
+    chatgpt: "Even a thousand floods have one dam",
+    gemini: "Thousand floods — one dam",
+    yandex: "И на тысячу потоков — одна плотина",
+    correct: "Қанша қиын болса да, шешім бар",
+    note: "Мағынасы: әр қиындықтың шешімі бар."
+  },
+  "ата балаға сыншы": {
+    chatgpt: "Father is a critic to his child",
+    gemini: "Father is judge for child",
+    yandex: "Отец — судья своему ребенку",
+    correct: "Әке — баланың тәрбиешісі",
+    note: "Мағынасы: әке — басты тәрбиеші."
+  },
+  "ескі киімді баптағаның жаңа киімді сақтағаның": {
+    chatgpt: "Taking care of old clothes means saving new ones",
+    gemini: "Care for old clothes saves new",
+    yandex: "Уход за старой одеждой — сбережение новой",
+    correct: "Ескіні бағалау — жаңаны сақтау",
+    note: "Мағынасы: барды бағала."
+  },
+  "қара арғымақ арыса қарға адым жер мұң болар": {
+    chatgpt: "When a black steed gets old, even a crow's step becomes a burden",
+    gemini: "Old steed finds crow step a distance",
+    yandex: "Одряхлевший конь и шаг вороны считает верстой",
+    correct: "Қарт адамға қиындық ауыр",
+    note: "Мағынасы: қарттық — сынақ."
+  }
+};
+
+var SAMPLES = [
+  "Қызға қырық үйден тыйым",
+  "Жеті рет өлшеп бір рет кес",
+  "Білім таусылмас қазына",
+  "Отан оттан да ыстық",
+  "Бірлік болмай тірлік болмайды"
+];
+
+function norm(s){
+  return s.toLowerCase().trim().replace(/[.,!?;:«»"'–—-]/g," ").replace(/\s+/g," ");
+}
+
+var chipsEl = document.getElementById('chips');
+SAMPLES.forEach(function(s){
+  var c = document.createElement('div');
+  c.className = 'chip';
+  c.textContent = s;
+  c.onclick = function(){ document.getElementById('input').value = s; analyze(); };
+  chipsEl.appendChild(c);
+});
+
+var allList = document.getElementById('all-list');
+Object.keys(DATASET).forEach(function(key){
+  var d = DATASET[key];
+  var item = document.createElement('div');
+  item.className = 'all-item';
+  item.innerHTML =
+    '<div class="proverb">📖 ' + key.charAt(0).toUpperCase() + key.slice(1) + '</div>' +
+    '<div class="correct">✅ ' + d.correct + '</div>' +
+    '<div class="wrongs">❌ ChatGPT: ' + d.chatgpt + ' • Gemini: ' + d.gemini + ' • Yandex: ' + d.yandex + '</div>';
+  item.onclick = function(){
+    document.getElementById('input').value = key;
+    analyze();
+    window.scrollTo({top:0, behavior:'smooth'});
+  };
+  allList.appendChild(item);
+});
+
+var total = 0;
+function analyze(){
+  var raw = document.getElementById('input').value;
+  var key = norm(raw);
+  var res = document.getElementById('results');
+  if(!raw.trim()){
+    res.innerHTML = '<div class="empty">Мақалды жазыңыз</div>';
+    return;
+  }
+  var data = DATASET[key];
+  total++;
+  document.getElementById('stat-total').textContent = total;
+
+  if(!data){
+    res.innerHTML = '<div class="card wrong"><div class="head"><span class="name">🔎 Дерекқорда табылмады</span></div><div class="ans">«' + raw + '» — бұл мақал әзірге датасетте жоқ.</div><div class="note">Төмендегі тізімнен таңдап көріңіз.</div></div>';
+    return;
+  }
+
+  res.innerHTML =
+    '<div class="section-title">🤖 ЖИ-дің жауаптары</div>' +
+    '<div class="ai-grid">' +
+      '<div class="card wrong"><div class="head"><span class="name">ChatGPT</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">' + data.chatgpt + '</div></div>' +
+      '<div class="card wrong"><div class="head"><span class="name">Gemini</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">' + data.gemini + '</div></div>' +
+      '<div class="card wrong"><div class="head"><span class="name">Yandex GPT</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">' + data.yandex + '</div></div>' +
+    '</div>' +
+    '<div class="teacher-block" style="background:linear-gradient(135deg,#14261f,#0f1a30);border:2px solid #4ade80;border-radius:16px;padding:18px;margin-top:16px;text-align:center">' +
+      '<div style="font-size:12px;color:#4ade80;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;font-weight:bold">✅ ДҰРЫС ЖАУАП — Qazaq School датасеті</div>' +
+      '<div style="font-size:17px;font-weight:bold;color:#fff">' + data.correct + '</div>' +
+      '<div style="font-size:12px;color:#9aa4c7;margin-top:8px;font-style:italic">' + data.note + '</div>' +
+    '</div>';
+}
+
+document.getElementById('input').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') analyze();
+});
+
+analyze();
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мақал Детекторы — №15 Иле ауданы</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:linear-gradient(180deg,#0b1020 0%,#131a35 100%);color:#e8ecf7;min-height:100vh;padding:16px;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto}
+
+.header{background:linear-gradient(135deg,#1e2a55,#0f1730);border:1px solid #2c3766;border-radius:18px;padding:22px 18px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden}
+.header::before{content:"";position:absolute;top:-50px;right:-50px;width:150px;height:150px;background:radial-gradient(circle,#4ade80,transparent 70%);opacity:.25}
+.header::after{content:"";position:absolute;bottom:-50px;left:-50px;width:150px;height:150px;background:radial-gradient(circle,#22d3ee,transparent 70%);opacity:.25}
+.school{font-size:13px;color:#22d3ee;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;position:relative;z-index:1}
+h1{font-size:24px;background:linear-gradient(90deg,#4ade80,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px;position:relative;z-index:1}
+.sub{color:#9aa4c7;font-size:13px;position:relative;z-index:1}
+.badge{display:inline-block;background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.35);padding:4px 12px;border-radius:20px;font-size:11px;margin-top:10px;position:relative;z-index:1}
+
+.box{background:#141a2e;border:1px solid #263056;border-radius:16px;padding:18px;margin-bottom:18px}
+label{display:block;font-size:13px;color:#9aa4c7;margin-bottom:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input{flex:1;min-width:200px;background:#1b2340;border:1px solid #2c3766;color:#fff;padding:13px;border-radius:10px;font-size:16px;outline:none}
+input:focus{border-color:#22d3ee;box-shadow:0 0 0 3px rgba(34,211,238,.15)}
+button{background:linear-gradient(90deg,#4ade80,#22d3ee);color:#04121f;font-weight:bold;border:none;padding:13px 22px;border-radius:10px;font-size:16px;cursor:pointer}
+button:hover{opacity:.9}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.chip{background:#1b2340;border:1px solid #2c3766;color:#9aa4c7;padding:6px 12px;border-radius:20px;font-size:12px;cursor:pointer}
+.chip:hover{color:#fff;border-color:#22d3ee}
+
+.section-title{font-size:14px;color:#9aa4c7;margin:20px 0 10px;text-transform:uppercase;letter-spacing:1px;font-weight:bold}
+.ai-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.card{background:#141a2e;border:1px solid #263056;border-radius:14px;padding:14px}
+.card.wrong{border-left:4px solid #f87171}
+.card.correct{border-left:4px solid #4ade80;background:linear-gradient(135deg,#14261f,#141a2e)}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.name{font-weight:bold;font-size:14px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:bold}
+.bad{background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.4)}
+.good{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.4)}
+.ans{background:#1b2340;padding:10px 12px;border-radius:8px;font-size:14px}
+.correct .ans{background:rgba(74,222,128,.08);font-size:15px}
+.note{font-size:12px;color:#9aa4c7;margin-top:8px;font-style:italic}
+
+.empty{text-align:center;color:#9aa4c7;padding:30px;border:1px dashed #2c3766;border-radius:14px;font-size:14px}
+
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:20px}
+.stat{background:#141a2e;border:1px solid #263056;border-radius:14px;padding:14px;text-align:center}
+.stat b{display:block;font-size:22px;color:#22d3ee}
+.stat span{font-size:11px;color:#9aa4c7}
+
+footer{text-align:center;color:#9aa4c7;font-size:12px;padding:20px 0;border-top:1px solid #1c2440;margin-top:24px;line-height:1.6}
+footer b{color:#e8ecf7}
+
+/* Блок со всеми пословицами */
+.all-section{margin-top:24px;background:#141a2e;border:1px solid #263056;border-radius:16px;padding:18px}
+.all-section h2{font-size:16px;color:#22d3ee;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.all-list{max-height:420px;overflow-y:auto;padding-right:6px}
+.all-item{padding:12px 14px;background:#1b2340;border-radius:10px;margin-bottom:8px;border-left:3px solid #3a4573;cursor:pointer;transition:.2s}
+.all-item:hover{border-left-color:#4ade80;background:#1f2945}
+.all-item .proverb{font-size:14px;font-weight:bold;color:#fff;margin-bottom:6px}
+.all-item .correct{font-size:13px;color:#4ade80}
+.all-item .wrongs{font-size:11px;color:#9aa4c7;margin-top:6px;line-height:1.4}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="school">№15 Иле ауданы • Алматы облысы</div>
+    <h1>ЖИ қазақша ойлай ала ма?</h1>
+    <p class="sub">К. Азербаев атындағы орта мектеп</p>
+    <div class="badge">🎯 МАҚАЛ ДЕТЕКТОРЫ</div>
+  </div>
+
+  <div class="box">
+    <label>Мақалды осында жазыңыз:</label>
+    <div class="row">
+      <input type="text" id="input" placeholder="Мысалы: Қызға қырық үйден тыйым">
+      <button onclick="analyze()">Тексеру</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="results">
+    <div class="empty">Нәтижені көру үшін мақал жазып, «Тексеру» басыңыз</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="stat-total">0</b><span>Тексерілген мақал</span></div>
+    <div class="stat"><b id="stat-db">35</b><span>Датасеттегі мақал</span></div>
+    <div class="stat"><b>3</b><span>Салыстырылған ЖИ</span></div>
+    <div class="stat"><b>100%</b><span>Адам бақылауы</span></div>
+  </div>
+
+  <div class="all-section">
+    <h2>📚 Барлық мақалдар (датасет)</h2>
+    <div class="all-list" id="all-list"></div>
+  </div>
+
+  <footer>
+    «Мен ЖИ қазақша білмейді деп шағымданбадым.<br>
+    Мен оған датасет жасап бердім.»<br><br>
+    <b>© №15 Иле ауданы • К. Азербаев атындағы мектеп</b>
+  </footer>
+
+</div>
+
+<script>
+var DATASET = {
+  "қызға қырық үйден тыйым": {
+    chatgpt: "Запрет из 40 домов",
+    gemini: "Ban from forty houses",
+    yandex: "Запрет для девушки из сорока домов",
+    correct: "Девушку воспитывает весь аул",
+    note: "Мағынасы: қыз — бүкіл қоғамның тәрбиесінде."
+  },
+  "жеті рет өлшеп бір рет кес": {
+    chatgpt: "Measure seven times, cut once",
+    gemini: "Measure seven times and cut once",
+    yandex: "Семь раз отмерь, один раз отрежь",
+    correct: "Ойланбай іс қылма, асықпа",
+    note: "Мағынасы: әрекеттен бұрын жете ойлан."
+  },
+  "білім таусылмас қазына": {
+    chatgpt: "Knowledge is an inexhaustible treasure",
+    gemini: "Knowledge is an endless treasure",
+    yandex: "Знание — неиссякаемое сокровище",
+    correct: "Білім — адамның ең бай байлығы",
+    note: "Мағынасы: білімнің құны шексіз."
+  },
+  "бірлік болмай тірлік болмайды": {
+    chatgpt: "Without unity, there is no life",
+    gemini: "No unity — no living",
+    yandex: "Без единства не будет жизни",
+    correct: "Бірлік болмаса, ел дамымайды",
+    note: "Мағынасы: ынтымақ — өркендеу негізі."
+  },
+  "ағаш түбімен адам ағасымен": {
+    chatgpt: "A tree with its root, a man with his brother",
+    gemini: "Tree by its root, man by his elder brother",
+    yandex: "Дерево корнем, человек старшим братом",
+    correct: "Адам ағайын-туысымен мықты",
+    note: "Мағынасы: туыстық — тірек."
+  },
+  "тіл қоғам айнасы": {
+    chatgpt: "Language is a mirror of society",
+    gemini: "Language is the mirror of society",
+    yandex: "Язык — зеркало общества",
+    correct: "Тіл — халықтың рухани келбеті",
+    note: "Мағынасы: тілде ұлт бейнеленеді."
+  },
+  "отан оттан да ыстық": {
+    chatgpt: "Motherland is hotter than fire",
+    gemini: "Homeland is hotter than fire",
+    yandex: "Родина горячее огня",
+    correct: "Отан — жаннан қымбат",
+    note: "Мағынасы: Отанды сүю — қасиет."
+  },
+  "досың көп болса жауың аз болады": {
+    chatgpt: "If you have many friends, you will have few enemies",
+    gemini: "Many friends — few enemies",
+    yandex: "Если друзей много, врагов мало",
+    correct: "Достық — қауіпсіздік кепілі",
+    note: "Мағынасы: достық қорғайды."
+  },
+  "ұят білімнен де күшті": {
+    chatgpt: "Shame is stronger than knowledge",
+    gemini: "Shame is stronger than knowledge",
+    yandex: "Стыд сильнее знания",
+    correct: "Ұят — адамгершіліктің негізі",
+    note: "Мағынасы: ар-ұят — тәрбие өзегі."
+  },
+  "еңбек етсең ерінбей тояды қарның тіленбей": {
+    chatgpt: "If you work without laziness, your stomach will be full without begging",
+    gemini: "Work hard and you won't have to beg to be full",
+    yandex: "Будешь трудиться не ленясь — будешь сыт, не прося",
+    correct: "Еңбекқор адам ешқашан мұқтаж болмайды",
+    note: "Мағынасы: еңбек — береке."
+  },
+  "ата асқар тау ана бауырындағы бұлақ бала жағасындағы құрақ": {
+    chatgpt: "Father is a high mountain, mother is a spring at its foot, child is a reed on the shore",
+    gemini: "Father — a mountain, mother — a spring, child — a reed",
+    yandex: "Отец — гора, мать — родник, ребенок — тростник",
+    correct: "Отбасы — тірек, ата-ана — қорған",
+    note: "Мағынасы: әке — биік, ана — жылы, бала — өмір."
+  },
+  "оқусыз білім жоқ білімсіз күнің жоқ": {
+    chatgpt: "Without study there is no knowledge, without knowledge there is no day",
+    gemini: "No study — no knowledge, no knowledge — no life",
+    yandex: "Без учебы нет знаний, без знаний нет дня",
+    correct: "Білім — өмірдің жарығы",
+    note: "Мағынасы: оқу — өмір негізі."
+  },
+  "ақыл тозбайтын тон білім таусылмайтын кен": {
+    chatgpt: "Wisdom is a coat that does not wear out, knowledge is an inexhaustible mine",
+    gemini: "Mind is an unwearable coat, knowledge is an inexhaustible mine",
+    yandex: "Ум — не изнашивается, знание — неисчерпаемо",
+    correct: "Ақыл мен білім — мәңгілік байлық",
+    note: "Мағынасы: ақыл мен білім ешқашан таусылмайды."
+  },
+  "әдепті бала арлы бала әдепсіз бала сорлы бала": {
+    chatgpt: "A polite child is an honest child, an impolite child is a miserable child",
+    gemini: "Polite child — honorable, impolite — unhappy",
+    yandex: "Воспитанный ребенок — честный, невоспитанный — несчастный",
+    correct: "Тәрбиелі бала — елдің тірегі",
+    note: "Мағынасы: әдеп — бақыттың кілті."
+  },
+  "өнерлі істе жеміс бар өрелі істе жеңіс бар": {
+    chatgpt: "In skillful work there is fruit, in prudent work there is victory",
+    gemini: "Skillful work brings fruit, wise work brings victory",
+    yandex: "В умелом деле — плод, в разумном — победа",
+    correct: "Өнер мен өре — жеңіске жеткізеді",
+    note: "Мағынасы: өнерлі адам жеңіске жетеді."
+  },
+  "балапан ұяда не көрсе ұшқанда соны іледі": {
+    chatgpt: "What a chick sees in the nest, it will follow when it flies",
+    gemini: "What a nestling sees in the nest, it does when it flies",
+    yandex: "Что птенец видит в гнезде, то и делает в полете",
+    correct: "Бала — үлкендерден үлгі алады",
+    note: "Мағынасы: бала отбасындағы тәрбиені алады."
+  },
+  "туған жердей жер болмас туған елдей ел болмас": {
+    chatgpt: "There is no land like native land, no people like native people",
+    gemini: "No land like motherland, no people like your own",
+    yandex: "Нет земли лучше родной, нет народа лучше своего",
+    correct: "Туған жер — жанның жылуы",
+    note: "Мағынасы: Отан — әр адамға ыстық."
+  },
+  "өз еліңде сұлтан болғанша өз еліңде ұлтан бол": {
+    chatgpt: "Better to be a sultan in your country than a sole in another",
+    gemini: "Be a sole in your land than sultan in another",
+    yandex: "Лучше быть стелькой на родине, чем султаном на чужбине",
+    correct: "Өз елің — алтын бесік",
+    note: "Мағынасы: өз еліңде бақытты бол."
+  },
+  "тұзды төкпе қызды сөкпе": {
+    chatgpt: "Do not spill salt, do not scold a girl",
+    gemini: "Don't spill salt, don't scold daughter",
+    yandex: "Не рассыпай соль, не ругай девушку",
+    correct: "Қыз — елдің көркі",
+    note: "Мағынасы: қызды қадірле."
+  },
+  "білімді мыңды жығады білекті бірді жығады": {
+    chatgpt: "The learned defeats thousands, the strong defeats one",
+    gemini: "Knowledge defeats thousands, strength defeats one",
+    yandex: "Знающий победит тысячи, сильный — одного",
+    correct: "Білім — күштен де артық",
+    note: "Мағынасы: білім күштен басым."
+  },
+  "досыңды қиналғанда бір сына қуанғанда бір сына": {
+    chatgpt: "Test your friend once in trouble, once in joy",
+    gemini: "Test friend in sorrow and in joy",
+    yandex: "Проверь друга в беде и в радости",
+    correct: "Дос — қиындықта сыналады",
+    note: "Мағынасы: шынайы достық қиындықта білінеді."
+  },
+  "денсаулық зор байлық": {
+    chatgpt: "Health is great wealth",
+    gemini: "Health is big wealth",
+    yandex: "Здоровье — большое богатство",
+    correct: "Денсаулық — баға жетпес байлық",
+    note: "Мағынасы: денсаулық — ең қымбат."
+  },
+  "өмір бойы үйрен": {
+    chatgpt: "Learn throughout life",
+    gemini: "Study your whole life",
+    yandex: "Учись всю жизнь",
+    correct: "Білім — өмір бойы",
+    note: "Мағынасы: оқу — мәңгілік процесс."
+  },
+  "аштың мұңын тоқ түсінбес": {
+    chatgpt: "The well-fed will not understand the hungry",
+    gemini: "Full man doesn't understand hungry",
+    yandex: "Сытый голодного не поймет",
+    correct: "Бақытты адам бақытсызды түсінбейді",
+    note: "Мағынасы: әркім өз халін біледі."
+  },
+  "екі кеменің басын ұстаған суға кетер": {
+    chatgpt: "Who holds two boats will drown",
+    gemini: "Holding two boats leads to drowning",
+    yandex: "Кто держит две лодки, утонет",
+    correct: "Екі істі қатар істеу — қате",
+    note: "Мағынасы: бір іске шындап кіріс."
+  },
+  "жақсыдан шарапат жаманнан кесапат": {
+    chatgpt: "From good comes blessing, from bad comes curse",
+    gemini: "Good brings good, bad brings harm",
+    yandex: "От хорошего — благо, от плохого — беда",
+    correct: "Жақсымен дос бол, жаманнан қаш",
+    note: "Мағынасы: ортаңды дұрыс таңда."
+  },
+  "еңбектің көзін тапқан байлықтың өзін табады": {
+    chatgpt: "Who finds the source of labor finds wealth itself",
+    gemini: "Find the source of work — find wealth",
+    yandex: "Кто найдет источник труда, найдет богатство",
+    correct: "Еңбек — байлықтың көзі",
+    note: "Мағынасы: еңбекпен байлық келеді."
+  },
+  "ел іші алтын бесік": {
+    chatgpt: "The people's land is a golden cradle",
+    gemini: "Land of people is golden cradle",
+    yandex: "Родная земля — золотая колыбель",
+    correct: "Өз елің — жанның жылуы",
+    note: "Мағынасы: Отан — әр адамға ыстық."
+  },
+  "құлан құдыққа түссе құлағында құрбақа ойнар": {
+    chatgpt: "If a kulan falls into a well, a frog plays on its ear",
+    gemini: "When kulan falls in well, frog plays on ear",
+    yandex: "Если кулан упадет в колодец, лягушка играет на ухе",
+    correct: "Үлкен құласа, кіші күледі",
+    note: "Мағынасы: әлсіздер күштінің құлауын күтеді."
+  },
+  "кеңесіп пішкен тон келте болмас": {
+    chatgpt: "A coat sewn with advice will not be short",
+    gemini: "Coat sewn with counsel won't be short",
+    yandex: "Сшитый с советом кафтан не будет коротким",
+    correct: "Ақылдасып істеген іс — дұрыс",
+    note: "Мағынасы: кеңес — істің кепілі."
+  },
+  "жалғыздың үні шықпас жаяудың шаңы шықпас": {
+    chatgpt: "A lonely man's voice is not heard, a pedestrian's dust is not seen",
+    gemini: "Lonely has no voice, walker has no dust",
+    yandex: "Одинокий не слышен, пеший не пылит",
+    correct: "Бірлік болмаса, күш болмайды",
+    note: "Мағынасы: жалғыз адам әлсіз."
+  },
+  "асы жоқ үйді ит те сүймейді": {
+    chatgpt: "Even a dog does not like a house without food",
+    gemini: "A house without food, even dog avoids",
+    yandex: "Дом без еды и собака не любит",
+    correct: "Берекесіз үй — қуыс",
+    note: "Мағынасы: береке — үйдің байлығы."
+  },
+  "ат айналып қазығын табар ер айналып елін табар": {
+    chatgpt: "A horse circles and finds its post, a man circles and finds his land",
+    gemini: "Horse returns to post, man returns to homeland",
+    yandex: "Конь вернется к коновязи, джигит — на родину",
+    correct: "Адам туған жеріне тартады",
+    note: "Мағынасы: Отан — жанның тартылысы."
+  },
+  "атадан ұл қалса өзі қалғаны қыз қалса ізі қалғаны": {
+    chatgpt: "If a son remains from father, he remains himself, if a daughter remains, her trace remains",
+    gemini: "Son remains father himself, daughter remains trace",
+    yandex: "Сын останется сам, дочь — след",
+    correct: "Ұл — ұрпақ, қыз — із",
+    note: "Мағынасы: бала — ата-ананың жалғасы."
+  },
+  "атаңның баласы болма адамның баласы бол": {
+    chatgpt: "Do not be a son of your father, be a son of humanity",
+    gemini: "Don't be son of father, be son of man",
+    yandex: "Не будь сыном отца, будь сыном народа",
+    correct: "Адам болу — ең биік мақсат",
+    note: "Мағынасы: адамгершілік — басты қасиет."
+  },
+  "аты аталмаған жігіттен аты аталған төбе артық": {
+    chatgpt: "Better a named hill than an unnamed young man",
+    gemini: "Named hill better than unnamed man",
+    yandex: "Лучше названный холм, чем безымянный джигит",
+    correct: "Атың шықпаса, ісің шықпайды",
+    note: "Мағынасы: атақ — еңбекпен келеді."
+  },
+  "мың тасқанға да бір тосқын": {
+    chatgpt: "Even a thousand floods have one dam",
+    gemini: "Thousand floods — one dam",
+    yandex: "И на тысячу потоков — одна плотина",
+    correct: "Қанша қиын болса да, шешім бар",
+    note: "Мағынасы: әр қиындықтың шешімі бар."
+  },
+  "ата балаға сыншы": {
+    chatgpt: "Father is a critic to his child",
+    gemini: "Father is judge for child",
+    yandex: "Отец — судья своему ребенку",
+    correct: "Әке — баланың тәрбиешісі",
+    note: "Мағынасы: әке — басты тәрбиеші."
+  },
+  "ескі киімді баптағаның жаңа киімді сақтағаның": {
+    chatgpt: "Taking care of old clothes means saving new ones",
+    gemini: "Care for old clothes saves new",
+    yandex: "Уход за старой одеждой — сбережение новой",
+    correct: "Ескіні бағалау — жаңаны сақтау",
+    note: "Мағынасы: барды бағала."
+  },
+  "қара арғымақ арыса қарға адым жер мұң болар": {
+    chatgpt: "When a black steed gets old, even a crow's step becomes a burden",
+    gemini: "Old steed finds crow step a distance",
+    yandex: "Одряхлевший конь и шаг вороны считает верстой",
+    correct: "Қарт адамға қиындық ауыр",
+    note: "Мағынасы: қарттық — сынақ."
+  }
+};
+
+var SAMPLES = [
+  "Қызға қырық үйден тыйым",
+  "Жеті рет өлшеп бір рет кес",
+  "Білім таусылмас қазына",
+  "Отан оттан да ыстық",
+  "Бірлік болмай тірлік болмайды"
+];
+
+function norm(s){
+  return s.toLowerCase().trim().replace(/[.,!?;:«»"'–—-]/g," ").replace(/\s+/g," ");
+}
+
+var chipsEl = document.getElementById('chips');
+SAMPLES.forEach(function(s){
+  var c = document.createElement('div');
+  c.className = 'chip';
+  c.textContent = s;
+  c.onclick = function(){ document.getElementById('input').value = s; analyze(); };
+  chipsEl.appendChild(c);
+});
+
+var allList = document.getElementById('all-list');
+Object.keys(DATASET).forEach(function(key){
+  var d = DATASET[key];
+  var item = document.createElement('div');
+  item.className = 'all-item';
+  item.innerHTML =
+    '<div class="proverb">📖 ' + key.charAt(0).toUpperCase() + key.slice(1) + '</div>' +
+    '<div class="correct">✅ ' + d.correct + '</div>' +
+    '<div class="wrongs">❌ ChatGPT: ' + d.chatgpt + ' • Gemini: ' + d.gemini + ' • Yandex: ' + d.yandex + '</div>';
+  item.onclick = function(){
+    document.getElementById('input').value = key;
+    analyze();
+    window.scrollTo({top:0, behavior:'smooth'});
+  };
+  allList.appendChild(item);
+});
+
+var total = 0;
+function analyze(){
+  var raw = document.getElementById('input').value;
+  var key = norm(raw);
+  var res = document.getElementById('results');
+  if(!raw.trim()){
+    res.innerHTML = '<div class="empty">Мақалды жазыңыз</div>';
+    return;
+  }
+  var data = DATASET[key];
+  total++;
+  document.getElementById('stat-total').textContent = total;
+
+  if(!data){
+    res.innerHTML = '<div class="card wrong"><div class="head"><span class="name">🔎 Дерекқорда табылмады</span></div><div class="ans">«' + raw + '» — бұл мақал әзірге датасетте жоқ.</div><div class="note">Төмендегі тізімнен таңдап көріңіз.</div></div>';
+    return;
+  }
+
+  res.innerHTML =
+    '<div class="section-title">🤖 ЖИ-дің жауаптары</div>' +
+    '<div class="ai-grid">' +
+      '<div class="card wrong"><div class="head"><span class="name">ChatGPT</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">' + data.chatgpt + '</div></div>' +
+      '<div class="card wrong"><div class="head"><span class="name">Gemini</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">' + data.gemini + '</div></div>' +
+      '<div class="card wrong"><div class="head"><span class="name">Yandex GPT</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">' + data.yandex + '</div></div>' +
+    '</div>' +
+    '<div class="teacher-block" style="background:linear-gradient(135deg,#14261f,#0f1a30);border:2px solid #4ade80;border-radius:16px;padding:18px;margin-top:16px;text-align:center">' +
+      '<div style="font-size:12px;color:#4ade80;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;font-weight:bold">✅ ДҰРЫС ЖАУАП — Qazaq School датасеті</div>' +
+      '<div style="font-size:17px;font-weight:bold;color:#fff">' + data.correct + '</div>' +
+      '<div style="font-size:12px;color:#9aa4c7;margin-top:8px;font-style:italic">' + data.note + '</div>' +
+    '</div>';
+}
+
+document.getElementById('input').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') analyze();
+});
+
+analyze();
+</script>
+</body>
+</html>
