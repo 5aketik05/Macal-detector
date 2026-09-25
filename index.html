@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мақал Детекторы — ЖИ қазақша ойлай ала ма?</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#0b1020;color:#e8ecf7;min-height:100vh;padding:20px;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-size:26px;text-align:center;background:linear-gradient(90deg,#4ade80,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:6px}
+.sub{text-align:center;color:#9aa4c7;font-size:14px;margin-bottom:24px}
+.box{background:#141a2e;border:1px solid #263056;border-radius:16px;padding:20px;margin-bottom:20px}
+label{display:block;font-size:14px;color:#9aa4c7;margin-bottom:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input{flex:1;min-width:200px;background:#1b2340;border:1px solid #2c3766;color:#fff;padding:13px;border-radius:10px;font-size:16px;outline:none}
+input:focus{border-color:#22d3ee}
+button{background:linear-gradient(90deg,#4ade80,#22d3ee);color:#04121f;font-weight:bold;border:none;padding:13px 22px;border-radius:10px;font-size:16px;cursor:pointer}
+button:hover{opacity:.9}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.chip{background:#1b2340;border:1px solid #2c3766;color:#9aa4c7;padding:6px 12px;border-radius:20px;font-size:12px;cursor:pointer}
+.chip:hover{color:#fff;border-color:#22d3ee}
+.card{background:#141a2e;border:1px solid #263056;border-radius:14px;padding:16px;margin-bottom:14px}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.name{font-weight:bold;font-size:15px}
+.tag{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:bold}
+.bad{background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.4)}
+.good{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.4)}
+.ans{background:#1b2340;padding:12px;border-radius:10px;font-size:15px;border-left:3px solid #3a4573}
+.correct .ans{border-left-color:#4ade80}
+.wrong .ans{border-left-color:#f87171}
+.note{font-size:12px;color:#9aa4c7;margin-top:8px}
+.empty{text-align:center;color:#9aa4c7;padding:30px;border:1px dashed #2c3766;border-radius:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:24px}
+.stat{background:#141a2e;border:1px solid #263056;border-radius:14px;padding:16px;text-align:center}
+.stat b{display:block;font-size:24px;color:#22d3ee}
+.stat span{font-size:12px;color:#9aa4c7}
+footer{text-align:center;color:#9aa4c7;font-size:12px;padding:24px 0;border-top:1px solid #1c2440;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ЖИ қазақша ойлай ала ма?</h1>
+  <p class="sub">Мақалды жаз — 3 ЖИ-дің қатесін және дұрыс жауабын салыстыр</p>
+
+  <div class="box">
+    <label>Мақалды осында жазыңыз:</label>
+    <div class="row">
+      <input type="text" id="input" placeholder="Мысалы: Қызға қырық үйден тыйым">
+      <button onclick="analyze()">Тексеру</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="results">
+    <div class="empty">Нәтижені көру үшін мақал жазып, «Тексеру» басыңыз</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="stat-total">0</b><span>Тексерілген мақал</span></div>
+    <div class="stat"><b>10</b><span>Датасеттегі мақал</span></div>
+    <div class="stat"><b>3</b><span>Салыстырылған ЖИ</span></div>
+    <div class="stat"><b>100%</b><span>Адам бақылауы</span></div>
+  </div>
+
+  <footer>«Мен ЖИ қазақша білмейді деп шағымданбадым. Мен оған датасет жасап бердім.»<br>© Qazaq School</footer>
+</div>
+
+<script>
+var DATASET = {
+  "қызға қырық үйден тыйым": {
+    chatgpt: "Запрет из 40 домов",
+    gemini: "Ban from forty houses",
+    yandex: "Запрет для девушки из сорока домов",
+    correct: "Девушку воспитывает весь аул",
+    note: "Мағынасы: қыз — бүкіл қоғамның тәрбиесінде."
+  },
+  "жеті рет өлшеп бір рет кес": {
+    chatgpt: "Measure seven times, cut once",
+    gemini: "Measure seven times and cut once",
+    yandex: "Семь раз отмерь, один раз отрежь",
+    correct: "Ойланбай іс қылма, асықпа",
+    note: "Мағынасы: әрекеттен бұрын жете ойлан."
+  },
+  "білім таусылмас қазына": {
+    chatgpt: "Knowledge is an inexhaustible treasure",
+    gemini: "Knowledge is an endless treasure",
+    yandex: "Знание — неиссякаемое сокровище",
+    correct: "Білім — адамның ең бай байлығы",
+    note: "Мағынасы: білімнің құны шексіз."
+  },
+  "бірлік болмай тірлік болмайды": {
+    chatgpt: "Without unity, there is no life",
+    gemini: "No unity — no living",
+    yandex: "Без единства не будет жизни",
+    correct: "Бірлік болмаса, ел дамымайды",
+    note: "Мағынасы: ынтымақ — өркендеу негізі."
+  },
+  "ағаш түбімен адам ағасымен": {
+    chatgpt: "A tree with its root, a man with his brother",
+    gemini: "Tree by its root, man by his elder brother",
+    yandex: "Дерево корнем, человек старшим братом",
+    correct: "Адам ағайын-туысымен мықты",
+    note: "Мағынасы: туыстық — тірек."
+  },
+  "тіл қоғам айнасы": {
+    chatgpt: "Language is a mirror of society",
+    gemini: "Language is the mirror of society",
+    yandex: "Язык — зеркало общества",
+    correct: "Тіл — халықтың рухани келбеті",
+    note: "Мағынасы: тілде ұлт бейнеленеді."
+  },
+  "отан оттан да ыстық": {
+    chatgpt: "Motherland is hotter than fire",
+    gemini: "Homeland is hotter than fire",
+    yandex: "Родина горячее огня",
+    correct: "Отан — жаннан қымбат",
+    note: "Мағынасы: Отанды сүю — қасиет."
+  },
+  "досың көп болса жауың аз болады": {
+    chatgpt: "If you have many friends, you will have few enemies",
+    gemini: "Many friends — few enemies",
+    yandex: "Если друзей много, врагов мало",
+    correct: "Достық — қауіпсіздік кепілі",
+    note: "Мағынасы: достық қорғайды."
+  },
+  "ұят білімнен де күшті": {
+    chatgpt: "Shame is stronger than knowledge",
+    gemini: "Shame is stronger than knowledge",
+    yandex: "Стыд сильнее знания",
+    correct: "Ұят — адамгершіліктің негізі",
+    note: "Мағынасы: ар-ұят — тәрбие өзегі."
+  },
+  "еңбек етсең ерінбей тояды қарның тіленбей": {
+    chatgpt: "If you work without laziness, your stomach will be full without begging",
+    gemini: "Work hard and you won't have to beg to be full",
+    yandex: "Будешь трудиться не ленясь — будешь сыт, не прося",
+    correct: "Еңбекқор адам ешқашан мұқтаж болмайды",
+    note: "Мағынасы: еңбек — береке."
+  }
+};
+
+var SAMPLES = [
+  "Қызға қырық үйден тыйым",
+  "Жеті рет өлшеп бір рет кес",
+  "Білім таусылмас қазына",
+  "Бірлік болмай тірлік болмайды",
+  "Отан оттан да ыстық"
+];
+
+function norm(s){
+  return s.toLowerCase().trim().replace(/[.,!?;:«»"'–—-]/g," ").replace(/\s+/g," ");
+}
+
+var chipsEl = document.getElementById('chips');
+SAMPLES.forEach(function(s){
+  var c = document.createElement('div');
+  c.className = 'chip';
+  c.textContent = s;
+  c.onclick = function(){ document.getElementById('input').value = s; analyze(); };
+  chipsEl.appendChild(c);
+});
+
+var total = 0;
+function analyze(){
+  var raw = document.getElementById('input').value;
+  var key = norm(raw);
+  var res = document.getElementById('results');
+  if(!raw.trim()){
+    res.innerHTML = '<div class="empty">Мақалды жазыңыз</div>';
+    return;
+  }
+  var data = DATASET[key];
+  total++;
+  document.getElementById('stat-total').textContent = total;
+
+  if(!data){
+    res.innerHTML = '<div class="card"><div class="head"><span class="name">🔎 Дерекқорда табылмады</span></div><div class="ans">«' + raw + '» — бұл мақал әзірге датасетте жоқ.</div><div class="note">Датасетке қосуға болады.</div></div>';
+    return;
+  }
+
+  res.innerHTML =
+    '<div class="card wrong"><div class="head"><span class="name">🤖 ChatGPT</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">' + data.chatgpt + '</div></div>' +
+    '<div class="card wrong"><div class="head"><span class="name">✨ Gemini</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">' + data.gemini + '</div></div>' +
+    '<div class="card wrong"><div class="head"><span class="name">🟡 Yandex GPT</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">' + data.yandex + '</div></div>' +
+    '<div class="card correct"><div class="head"><span class="name">✅ Qazaq School датасеті</span><span class="tag good">ДҰРЫС</span></div><div class="ans">' + data.correct + '</div><div class="note">' + data.note + '</div></div>';
+}
+
+document.getElementById('input').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') analyze();
+});
+</script>
+</body>
+</html>
