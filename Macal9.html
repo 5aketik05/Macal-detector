@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Мақал Детекторы</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#0b1020;color:#e8ecf7;min-height:100vh;padding:16px;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto}
+.header{text-align:center;margin-bottom:24px;padding-top:10px}
+h1{font-size:26px;background:linear-gradient(90deg,#4ade80,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:10px;font-weight:bold}
+.sub{color:#9aa4c7;font-size:14px}
+.school{color:#22d3ee;font-size:13px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.box{background:#141a2e;border:1px solid #263056;border-radius:16px;padding:18px;margin-bottom:22px}
+label{display:block;font-size:14px;color:#9aa4c7;margin-bottom:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input{flex:1;min-width:180px;background:#1b2340;border:1px solid #2c3766;color:#fff;padding:14px;border-radius:10px;font-size:15px;outline:none}
+input::placeholder{color:#7a85a8}
+button{background:linear-gradient(90deg,#4ade80,#22d3ee);color:#04121f;font-weight:bold;border:none;padding:14px 22px;border-radius:10px;font-size:15px;cursor:pointer}
+.samples-title{font-size:13px;color:#9aa4c7;margin:16px 0 10px;text-transform:uppercase}
+.samples{display:flex;flex-direction:column;gap:8px}
+.sample{background:#1b2340;border:1px solid #2c3766;border-left:3px solid #22d3ee;color:#e8ecf7;padding:12px 14px;border-radius:10px;font-size:14px;cursor:pointer}
+.sample:hover{background:#1f2945;border-left-color:#4ade80}
+.card{background:#141a2e;border:1px solid #263056;border-radius:14px;padding:14px;margin-bottom:10px}
+.card.wrong{border-left:4px solid #f87171}
+.card.right{border-left:4px solid #22d3ee}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
+.name{font-weight:bold;font-size:14px}
+.tag{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:bold}
+.bad{background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.4)}
+.info{background:rgba(34,211,238,.15);color:#22d3ee;border:1px solid rgba(34,211,238,.4)}
+.ans{background:#1b2340;padding:10px 12px;border-radius:8px;font-size:14px}
+.note{font-size:12px;color:#9aa4c7;margin-top:8px;font-style:italic}
+.empty{text-align:center;color:#9aa4c7;padding:40px 20px;border:1px dashed #2c3766;border-radius:16px;font-size:14px}
+.tb{background:linear-gradient(135deg,#14261f,#0f1a30);border:2px solid #4ade80;border-radius:16px;padding:18px;margin-top:16px;text-align:center}
+.tb .l{font-size:12px;color:#4ade80;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;font-weight:bold}
+.tb .t{font-size:17px;font-weight:bold;color:#fff;margin-bottom:6px}
+footer{text-align:center;color:#9aa4c7;font-size:13px;padding:24px 10px;line-height:1.7;margin-top:20px;border-top:1px solid #1c2440}
+footer b{color:#e8ecf7}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="header">
+<div class="school">К. Азербаев атындағы орта мектеп</div>
+<h1>ЖИ қазақша ойлай ала ма?</h1>
+<div class="sub">Мақалды жаз — 3 ЖИ-дің қатесін және дұрыс жауабын салыстыр</div>
+</div>
+
+<div class="box">
+<label>Мақалды осында жазыңыз:</label>
+<div class="row">
+<input type="text" id="input" placeholder="Мысалы: Қызға қырық үйден тыйым">
+<button onclick="analyze()">Тексеру</button>
+</div>
+<div class="samples-title">Немесе мына мақалдарды таңдаңыз:</div>
+<div class="samples" id="samples"></div>
+</div>
+
+<div id="results"><div class="empty">Нәтижені көру үшін мақал жазып, «Тексеру» басыңыз</div></div>
+
+<footer>«Мен ЖИ қазақша білмейді деп шағымданбадым.<br>Мен оған датасет жасап бердім.»<br><br><b>© К. Азербаев атындағы орта мектеп</b></footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+function norm(s){return s.toLowerCase().trim().replace(/[.,!?;:«»"'–—-]/g," ").replace(/\s+/g," ");}
+
+var SAMPLES = ["Қызға қырық үйден тыйым","Жеті рет өлшеп бір рет кес","Білім таусылмас қазына","Бірлік болмай тірлік болмайды","Отан оттан да ыстық"];
+
+var samplesEl = document.getElementById('samples');
+SAMPLES.forEach(function(s){
+  var el = document.createElement('div');
+  el.className = 'sample';
+  el.textContent = '📖 ' + s;
+  el.onclick = function(){
+    document.getElementById('input').value = s;
+    analyze();
+  };
+  samplesEl.appendChild(el);
+});
+
+function analyze(){
+  var raw = document.getElementById('input').value || '';
+  var key = norm(raw);
+  var res = document.getElementById('results');
+
+  if(!raw.trim()){
+    res.innerHTML = '<div class="card wrong"><div class="head"><span class="name">⚠️ БОС ӨРІС</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">Мақалды жазыңыз немесе мысалдарды таңдаңыз!</div></div>';
+    return;
+  }
+
+  var d = D[key];
+
+  if(!d){
+    res.innerHTML = '<div class="card wrong"><div class="head"><span class="name">❌ ҚАТЕ</span><span class="tag bad">ТАБЫЛМАДЫ</span></div><div class="ans">«' + raw + '» — бұл мақал дұрыс емес немесе датасетте жоқ.</div></div>';
+    return;
+  }
+
+  res.innerHTML =
+    '<div class="card right"><div class="head"><span class="name">✅ ДҰРЫС МАҚАЛ</span><span class="tag info">ТАБЫЛДЫ</span></div><div class="ans">«' + raw + '»</div></div>' +
+    '<div class="card wrong"><div class="head"><span class="name">ChatGPT</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">' + d.c + '</div></div>' +
+    '<div class="card wrong"><div class="head"><span class="name">Gemini</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">' + d.g + '</div></div>' +
+    '<div class="card wrong"><div class="head"><span class="name">Yandex GPT</span><span class="tag bad">ҚАТЕ</span></div><div class="ans">' + d.y + '</div></div>' +
+    '<div class="tb"><div class="l">✅ ДҰРЫС ЖАУАП — Qazaq School датасеті</div><div class="t">' + d.k + '</div><div class="note">' + d.n + '</div></div>';
+}
+</script>
+</body>
+</html>
